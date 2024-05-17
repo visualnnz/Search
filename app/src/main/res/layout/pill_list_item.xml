@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <!-- 리스트뷰 항목 1-->
+    <RelativeLayout
+        android:id="@+id/listitem1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 이미지 -->
+        <ImageView
+            android:id="@+id/image_pill1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:padding="10dp"
+            android:src="@drawable/pill" />
+
+        <!-- 약 이름 + 용량과 제조사 정보 -->
+        <RelativeLayout
+            android:layout_toRightOf="@id/image_pill1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignTop="@id/image_pill1"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dp">
+
+            <TextView
+                android:id="@+id/pill_name1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="4dp"
+                android:text="약 이름 + 용량(mg)"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/pill_manufacturer1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/pill_name1"
+                android:text="제조사"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <!-- 리스트뷰 항목 2-->
+    <RelativeLayout
+        android:id="@+id/listitem2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listitem1">
+
+        <!-- 이미지 -->
+        <ImageView
+            android:id="@+id/image_pill2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:padding="10dp"
+            android:src="@drawable/pill" />
+
+        <!-- 약 이름 + 용량과 제조사 정보 -->
+        <RelativeLayout
+            android:layout_toRightOf="@id/image_pill2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignTop="@id/image_pill2"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dp">
+
+            <TextView
+                android:id="@+id/pill_name2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="4dp"
+                android:text="약 이름 + 용량(mg)"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/pill_manufacturer2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/pill_name2"
+                android:text="제조사"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <!-- 리스트뷰 항목 3-->
+    <RelativeLayout
+        android:id="@+id/listitem3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listitem2">
+
+        <!-- 이미지 -->
+        <ImageView
+            android:id="@+id/image_pill3"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:padding="10dp"
+            android:src="@drawable/pill" />
+
+        <!-- 약 이름 + 용량과 제조사 정보 -->
+        <RelativeLayout
+            android:layout_toRightOf="@id/image_pill3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignTop="@id/image_pill3"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dp">
+
+            <TextView
+                android:id="@+id/pill_name3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="4dp"
+                android:text="약 이름 + 용량(mg)"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/pill_manufacturer3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/pill_name3"
+                android:text="제조사"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
