@@ -11,13 +11,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+
+import java.util.ArrayList;
 
 public class SearchPillActivity extends AppCompatActivity {
     ListView pillList;
@@ -26,72 +27,76 @@ public class SearchPillActivity extends AppCompatActivity {
 
     ChipGroup symptomGroup;
     Chip coldChip, digestionChip, diarrheaChip,
-            feverChip, atopyChip, insomniaChip,
-            anxietyChip, adhdChip, impulseChip, autismChip;
+            feverChip, acheChip, inflammationChip,
+             adhdChip, othersChip;
 
+    ArrayList<String> itemRooms = new ArrayList<>();
 
-    // 약품 이미지 예시
-    Integer[] pillImages = {
-            R.drawable.pill,
-            R.drawable.pill1,
-            R.drawable.pill2,
-            R.drawable.pill3,
-            R.drawable.pill4,
-            R.drawable.pill5,
+    // 리스트에 있는 전체 약의 개수
+    static final int PILL_COUNT = 6;
+    // 검색된 리스트 항목 개수
+    int itemCount = PILL_COUNT;
+
+    public class PillItem {
+        Integer pillImageResource;
+        String pillNameResource;
+        String pillSymptomResource;
+
+        PillItem(Integer pillImageResource, String pillNameResource, String pillSymptomResource) {
+            this.pillImageResource = pillImageResource;
+            this.pillNameResource = pillNameResource;
+            this.pillSymptomResource = pillSymptomResource;
+        }
+
+        public Integer getPillImageResource() {
+            return pillImageResource;
+        }
+
+        public String getPillNameResource() {
+            return pillNameResource;
+        }
+
+        public String getPillSymptomResource() {
+            return pillSymptomResource;
+        }
+
+        public void setPillImageResource(Integer pillImageResource) {
+            this.pillImageResource = pillImageResource;
+        }
+
+        public void setPillNameResource(String pillNameResource) {
+            this.pillNameResource = pillNameResource;
+        }
+
+        public void setPillSymptomResource(String pillSymptomResource) {
+            this.pillSymptomResource = pillSymptomResource;
+        }
+    }
+
+    PillItem exampleItems[] = new PillItem[PILL_COUNT];
+
+    // 증상별 필터 ON/OFF 표시를 위한 boolean타입 배열
+    boolean[] symptomSwitch = new boolean[] {
+            false, false, false, false,
+            false, false, false, false
     };
 
-    // 약품 이름 예시
-    String[] pillNames = {
-            "감기약",
-            "소화제",
-            "설사약",
-            "해열제",
-            "불면증 약",
-            "불안 억제제"
-    };
 
-    // 약품 제조사 예시
-    String[] pillManufacturers = {
-            "삼성",
-            "LG",
-            "현대",
-            "넥슨",
-            "네이버",
-            "카카오"
-    };
-
-    // 해당 약품이 필요한 증상 예시
-    String[] pillSymptoms = {
-            "감기",
-            "소화",
-            "설사",
-            "열",
-            "불면증",
-            "불안"
-    };
-
-    // 증상별 필터 ON/OFF 표시를 위한 boolean타입 전역 변수
-    boolean cold = false;
-    boolean digestion = false;
-    boolean diarrhea = false;
-    boolean fever = false;
-    boolean atopy = false;
-    boolean insomnia = false;
-    boolean anxiety = false;
-    boolean adhd = false;
-    boolean impulse = false;
-    boolean autism = false;
+    // 증상별 고유 번호(symptomSwitch ArrayList의 인덱싱에 쓰임)
+    static final int COLD = 0;
+    static final int DIGESTION = 1;
+    static final int DIARRHEA = 2;
+    static final int FEVER = 3;
+    static final int ACHE = 4;
+    static final int INFLAMMATION = 5;
+    static final int ADHD = 6;
+    static final int OTHERS = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.search_pill);
-
-        // 약 검색 리스트뷰의 어댑터 설정
-        CustomList adapter = new CustomList(SearchPillActivity.this);
-        pillList = (ListView)findViewById(R.id.pillList);
-        pillList.setAdapter(adapter);
 
         searchBar = (TextView) findViewById(R.id.searchBar);
         searchButton = (Button) findViewById(R.id.searchButton);
@@ -101,28 +106,42 @@ public class SearchPillActivity extends AppCompatActivity {
 
         // ChipGroup 및 Chip 요소 참조
         symptomGroup = findViewById(R.id.symptomGroup);
+
         coldChip = findViewById(R.id.cold);
         digestionChip = findViewById(R.id.digestion);
         diarrheaChip = findViewById(R.id.diarrhea);
         feverChip = findViewById(R.id.fever);
-        atopyChip = findViewById(R.id.atopy);
-        insomniaChip = findViewById(R.id.insomnia);
-        anxietyChip = findViewById(R.id.anxiety);
+        acheChip = findViewById(R.id.ache);
+        inflammationChip = findViewById(R.id.inflammation);
         adhdChip = findViewById(R.id.adhd);
-        impulseChip = findViewById(R.id.impulse);
-        autismChip = findViewById(R.id.autism);
+        othersChip = findViewById(R.id.others);
 
         // Chip 클릭 리스너 설정
         setupChipClickListener(coldChip);
         setupChipClickListener(digestionChip);
         setupChipClickListener(diarrheaChip);
         setupChipClickListener(feverChip);
-        setupChipClickListener(atopyChip);
-        setupChipClickListener(insomniaChip);
-        setupChipClickListener(anxietyChip);
+        setupChipClickListener(acheChip);
+        setupChipClickListener(inflammationChip);
         setupChipClickListener(adhdChip);
-        setupChipClickListener(impulseChip);
-        setupChipClickListener(autismChip);
+        setupChipClickListener(othersChip);
+
+        exampleItems[0] = new PillItem(R.drawable.pill, "감기약", "기침,콧물");
+        exampleItems[1] = new PillItem(R.drawable.pill1, "소화제", "소화불량");
+        exampleItems[2] = new PillItem(R.drawable.pill2, "설사약", "설사,소화불량,기침,코감기");
+        exampleItems[3] = new PillItem(R.drawable.pill3, "자양강장", "피로회복");
+        exampleItems[4] = new PillItem(R.drawable.pill4, "통증약", "두통,치통,신경통");
+        exampleItems[5] = new PillItem(R.drawable.pill5, "염증약", "설사,소화불량");
+
+        // 약 검색 리스트뷰의 어댑터 설정
+        for(int i = 0; i < itemCount; i++) {
+            itemRooms.add("temp");
+        }
+
+        CustomList adapter = new CustomList(SearchPillActivity.this);
+        pillList = (ListView)findViewById(R.id.pillList);
+        pillList.setAdapter(adapter);
+
     }
 
     // 약 검색 버튼 클릭시 실행(텍스트로 검색)
@@ -131,28 +150,31 @@ public class SearchPillActivity extends AppCompatActivity {
             // 변수 선언
             boolean searchSuccess = false;
             int searchItemCount = 30; // 검색되는 약의 최대 개수를 임시로 30으로 설정
-            int[] indexOfSearch = new int[searchItemCount];
+            int[] indexOfPill = new int[searchItemCount];
             @Override
             public void onClick(View v) {
                 // 버튼 클릭할 때마다 일부 변수값 초기화
                 searchSuccess = false;
-                indexOfSearch = new int[searchItemCount];
-                indexOfSearch[0] = -1;
+                indexOfPill = new int[searchItemCount];
+                indexOfPill[0] = -1;
+                itemCount = 0;
 
                 String searchString = searchBar.getText().toString();
 
                 pillList.setVisibility(View.VISIBLE);
-                Log.d("onClick", "searchString: " + searchString);
 
-                for (int i = 0, lastIndex = -1; i < pillNames.length; i++) {
-                    if(pillNames[i].contains(searchString)) {
-                        Log.d("onClick", "pillNames[" + i + "]: " + pillNames[i].toString());
-                        lastIndex++;
-                        indexOfSearch[lastIndex] = i;
+                for (int i = 0, position = -1; i < PILL_COUNT; i++) {
+                    if(exampleItems[i].getPillNameResource().contains(searchString)) {
+                        position++;
+                        indexOfPill[position] = i;
+                        itemCount++;
                         searchSuccess = true;
-                        Log.d("onClick", "lastIndex: " + lastIndex);
                     }
-                    Log.d("onClick", "searchSuccess: " + searchSuccess);
+                }
+
+                itemRooms.clear();
+                for(int i = 0; i < itemCount; i++) {
+                    itemRooms.add("temp");
                 }
 
                 CustomList newAdapterByText = new CustomList(SearchPillActivity.this) {
@@ -163,7 +185,6 @@ public class SearchPillActivity extends AppCompatActivity {
 
                         ImageView pillImage = (ImageView) rowView.findViewById(R.id.pillImage);
                         TextView pillName = (TextView) rowView.findViewById(R.id.pillName);
-                        TextView pillManufacturer = (TextView) rowView.findViewById(R.id.pillManufacturer);
                         TextView pillSymptom = (TextView) rowView.findViewById(R.id.pillSymptom);
 
                         Log.d("onClick", "searchSuccess: " + searchSuccess);
@@ -172,17 +193,12 @@ public class SearchPillActivity extends AppCompatActivity {
                         if(searchSuccess) {
                             pillList.setVisibility(View.VISIBLE);
 
-                            Log.d("onClick", "position: " + position);
-                            Log.d("onClick", "indexOfSearch[0]: " + indexOfSearch[0]);
-                            Log.d("onClick", "indexOfSearch[1]: " + indexOfSearch[1]);
-                            Log.d("onClick", "indexOfSearch[2]: " + indexOfSearch[2]);
-                            if(position <= indexOfSearch[position]) {
+                            if(position <= indexOfPill[position]) {
                                 rowView.setVisibility(View.VISIBLE);
 
-                                pillImage.setImageResource(pillImages[indexOfSearch[position]]);
-                                pillName.setText(pillNames[indexOfSearch[position]]);
-                                pillManufacturer.setText("제조사: " + pillManufacturers[indexOfSearch[position]]);
-                                pillSymptom.setText(pillSymptoms[position]);
+                                pillImage.setImageResource(exampleItems[indexOfPill[position]].getPillImageResource());
+                                pillName.setText(exampleItems[indexOfPill[position]].getPillNameResource());
+                                pillSymptom.setText(exampleItems[indexOfPill[position]].getPillSymptomResource());
 
                                 return rowView;
                             }
@@ -210,50 +226,45 @@ public class SearchPillActivity extends AppCompatActivity {
     public void setupChipClickListener(Chip chip) {
         chip.setOnClickListener(new View.OnClickListener() {
 
-            int searchItemCount = 30; // 검색되는 약의 최대 개수를 임시로 30으로 설정
-            int[] indexOfSearch = new int[searchItemCount];
+            int searchItemCount = 100; // 검색되는 약의 최대 개수를 임시로 100으로 설정
+            int[] indexOfPill = new int[searchItemCount];
+            int symptomOnCount;
+
             @Override
             public void onClick(View v) {
                 // 버튼 클릭할 때마다 일부 변수값 초기화
-                indexOfSearch = new int[searchItemCount];
-                indexOfSearch[0] = -1;
-
-                Log.d("onClick", "1. cold: " + cold);
-                Log.d("onClick", "1. digestion: " + digestion);
-                Log.d("onClick", "1. diarrhea: " + diarrhea);
+                indexOfPill = new int[searchItemCount];
+                indexOfPill[0] = -1;
+                symptomOnCount = 0;
+                itemCount = 0;
 
                 String symptomString = chip.getText().toString();
 
+                // 해당 필터에 대한 boolean값 true/false 토글
                 switch(symptomString) {
                     case "감기":
-                        cold = toggleSymptom(cold);
+                        symptomSwitch[COLD] = toggleSymptom(symptomSwitch[COLD]);
                         break;
                     case "소화":
-                        digestion = toggleSymptom(digestion);
+                        symptomSwitch[DIGESTION] = toggleSymptom(symptomSwitch[DIGESTION]);
                         break;
                     case "설사":
-                        diarrhea = toggleSymptom(diarrhea);
+                        symptomSwitch[DIARRHEA] = toggleSymptom(symptomSwitch[DIARRHEA]);
                         break;
                     case "열":
-                        fever = toggleSymptom(fever);
+                        symptomSwitch[FEVER] = toggleSymptom(symptomSwitch[FEVER]);
                         break;
-                    case "아토피":
-                        atopy = toggleSymptom(atopy);
+                    case "통증":
+                        symptomSwitch[ACHE] = toggleSymptom(symptomSwitch[ACHE]);
                         break;
-                    case "불면증":
-                        insomnia = toggleSymptom(insomnia);
-                        break;
-                    case "불안":
-                        anxiety = toggleSymptom(anxiety);
+                    case "염증":
+                        symptomSwitch[INFLAMMATION] = toggleSymptom(symptomSwitch[INFLAMMATION]);
                         break;
                     case "ADHD":
-                        adhd = toggleSymptom(adhd);
+                        symptomSwitch[ADHD] = toggleSymptom(symptomSwitch[ADHD]);
                         break;
-                    case "충동":
-                        impulse = toggleSymptom(impulse);
-                        break;
-                    case "자폐":
-                        autism = toggleSymptom(autism);
+                    case "기타":
+                        symptomSwitch[OTHERS] = toggleSymptom(symptomSwitch[OTHERS]);
                         break;
                     default:
                         break;
@@ -261,59 +272,643 @@ public class SearchPillActivity extends AppCompatActivity {
 
                 pillList.setVisibility(View.VISIBLE);
 
-
-
-
-
-                for (int i = 0, lastIndex = -1; i < pillSymptoms.length; i++) {
-                    if(pillSymptoms[i].contains(symptomString)) {
-                        Log.d("onClick", "pillSymptoms[" + i + "]: " + pillSymptoms[i]);
-                        lastIndex++;
-                        indexOfSearch[lastIndex] = i;
-                        Log.d("onClick", "lastIndex: " + lastIndex);
+                // ON 상태인 증상 개수 세기
+                for (boolean symptom : symptomSwitch) {
+                    if (symptom) {
+                        symptomOnCount++;
                     }
                 }
 
-                CustomList newAdapterBySymptom = new CustomList(SearchPillActivity.this) {
-                    @Override
-                    public View getView(int position, View view, ViewGroup parent) {
-                        LayoutInflater inflater = context.getLayoutInflater();
-                        View rowView = inflater.inflate(R.layout.pill_list_item, null);
+                if (symptomOnCount < 1) {
+                    itemCount = PILL_COUNT;
 
-                        ImageView pillImage = (ImageView) rowView.findViewById(R.id.pillImage);
-                        TextView pillName = (TextView) rowView.findViewById(R.id.pillName);
-                        TextView pillManufacturer = (TextView) rowView.findViewById(R.id.pillManufacturer);
-                        TextView pillSymptom = (TextView) rowView.findViewById(R.id.pillSymptom);
+                    itemRooms.clear();
+                    for(int i = 0; i < itemCount; i++) {
+                        itemRooms.add("temp");
+                    }
 
-                        Log.d("onClick", "position: " + position);
+                    CustomList adapter = new CustomList(SearchPillActivity.this);
+                    pillList = (ListView)findViewById(R.id.pillList);
+                    pillList.setAdapter(adapter);
+                }
+                else if (symptomOnCount == 1) { // symptomOnCount가 2이상에서 1로 되는 경우 오류있음
+                    int i = 0, position = 0;
+                    String symptomResource;
 
-                        Log.d("onClick", "cold: " + cold);
-                        Log.d("onClick", "digestion: " + digestion);
-                        Log.d("onClick", "diarrhea: " + diarrhea);
+                    while(i < PILL_COUNT) {
+                        symptomResource = exampleItems[i].getPillSymptomResource();
 
-                        Log.d("onClick", "indexOfSearch[0]: " + indexOfSearch[0]);
-                        Log.d("onClick", "indexOfSearch[1]: " + indexOfSearch[1]);
-                        Log.d("onClick", "indexOfSearch[2]: " + indexOfSearch[2]);
-
-                        if(position <= indexOfSearch[position]) {
-                            rowView.setVisibility(View.VISIBLE);
-
-                            pillImage.setImageResource(pillImages[indexOfSearch[position]]);
-                            pillName.setText(pillNames[indexOfSearch[position]]);
-                            pillManufacturer.setText("제조사: " + pillManufacturers[indexOfSearch[position]]);
-                            pillSymptom.setText(pillSymptoms[position]);
-
-                            return rowView;
+                        if (symptomSwitch[COLD]) {
+                            if(symptomResource.contains("기침") || symptomResource.contains("콧물")
+                                    || symptomResource.contains("코막힘") || symptomResource.contains("코감기")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
                         }
-                        else {
-                            Log.d("onClick", "position: " + position);
-                            rowView.setVisibility(View.GONE);
 
-                            return rowView;
+                        if (symptomSwitch[DIGESTION]) {
+                            if(symptomResource.contains("소화불량")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[DIARRHEA]) {
+                            if(symptomResource.contains("설사")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[FEVER]) {
+                            if(symptomResource.contains("발열")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[ACHE]) {
+                            if(symptomResource.contains("두통") || symptomResource.contains("치통")
+                                    || symptomResource.contains("신경통") || symptomResource.contains("관절통")
+                                    || symptomResource.contains("근육통") || symptomResource.contains("요통")
+                                    || symptomResource.contains("염좌통")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[INFLAMMATION]) {
+                            if(symptomResource.contains("위염") || symptomResource.contains("장염")
+                                    || symptomResource.contains("대장염") || symptomResource.contains("식도염")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[ADHD]) {
+                            if(symptomResource.contains("adhd") || symptomResource.contains("집중력")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+
+                        if (symptomSwitch[OTHERS]) {
+                            if(!symptomResource.contains("기침") && !symptomResource.contains("콧물")
+                                    && !symptomResource.contains("코막힘") && !symptomResource.contains("코감기")
+                                    && !symptomResource.contains("소화불량") && !symptomResource.contains("설사")
+                                    && !symptomResource.contains("발열") && !symptomResource.contains("두통")
+                                    && !symptomResource.contains("치통") && !symptomResource.contains("신경통")
+                                    && !symptomResource.contains("관절통") && !symptomResource.contains("근육통")
+                                    && !symptomResource.contains("요통") && !symptomResource.contains("염좌통")
+                                    && !symptomResource.contains("위염") && !symptomResource.contains("장염")
+                                    && !symptomResource.contains("대장염") && !symptomResource.contains("식도염")
+                                    && !symptomResource.contains("adhd") && !symptomResource.contains("집중력")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
                         }
                     }
-                };
-                pillList.setAdapter(newAdapterBySymptom);
+                    itemRooms.clear();
+                    for(int k = 0; k < itemCount; k++) {
+                        itemRooms.add("temp");
+                    }
+
+                    CustomList newAdapterBySymptom = new CustomList(SearchPillActivity.this) {
+                        @Override
+                        public View getView(int position, View view, ViewGroup parent) {
+                            LayoutInflater inflater = context.getLayoutInflater();
+                            View rowView = inflater.inflate(R.layout.pill_list_item, null);
+
+                            ImageView pillImage = (ImageView) rowView.findViewById(R.id.pillImage);
+                            TextView pillName = (TextView) rowView.findViewById(R.id.pillName);
+                            TextView pillSymptom = (TextView) rowView.findViewById(R.id.pillSymptom);
+
+
+                            if(position <= indexOfPill[position]) {
+                                rowView.setVisibility(View.VISIBLE);
+
+                                pillImage.setImageResource(exampleItems[indexOfPill[position]].getPillImageResource());
+                                pillName.setText(exampleItems[indexOfPill[position]].getPillNameResource());
+                                pillSymptom.setText(exampleItems[indexOfPill[position]].getPillSymptomResource());
+
+                                return rowView;
+                            }
+                            else {
+                                Log.d("onClick", "position: " + position);
+                                rowView.setVisibility(View.GONE);
+
+                                return rowView;
+                            }
+                        }
+                    };
+                    pillList.setAdapter(newAdapterBySymptom);
+                }
+                else { // 필터가 2개이상 ON일 경우(문제 발생: 앱이 강제종료됨)
+                    int i = 0, position = 0;
+                    String prev = null;
+                    String symptomResource;
+                    if (symptomSwitch[COLD]) {
+                        while (i < PILL_COUNT) {
+                            symptomResource = exampleItems[i].getPillSymptomResource();
+                            if(symptomResource.contains("기침") || symptomResource.contains("콧물")
+                                    || symptomResource.contains("코막힘") || symptomResource.contains("코감기")) {
+                                indexOfPill[position] = i;
+                                position++;
+                                itemCount++;
+                            }
+                            i++;
+                        }
+                        prev = "감기";
+                    }
+
+                    if (symptomSwitch[DIGESTION]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("소화불량")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "소화";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("소화불량")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("소화불량")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                prev = "소화";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "소화";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[DIARRHEA]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("설사")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "설사";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("설사")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("설사")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                prev = "설사";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "설사";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[FEVER]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("발열")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "열";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("발열")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("발열")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+
+                                prev = "열";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "열";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[ACHE]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("두통") || symptomResource.contains("치통")
+                                || symptomResource.contains("신경통") || symptomResource.contains("관절통")
+                                || symptomResource.contains("근육통") || symptomResource.contains("요통")
+                                || symptomResource.contains("염좌통")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "통증";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("두통") || symptomResource.contains("치통")
+                                        || symptomResource.contains("신경통") || symptomResource.contains("관절통")
+                                        || symptomResource.contains("근육통") || symptomResource.contains("요통")
+                                        || symptomResource.contains("염좌통")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("두통") || symptomResource.contains("치통")
+                                        || symptomResource.contains("신경통") || symptomResource.contains("관절통")
+                                        || symptomResource.contains("근육통") || symptomResource.contains("요통")
+                                        || symptomResource.contains("염좌통")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                prev = "통증";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "통증";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[INFLAMMATION]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("위염") || symptomResource.contains("장염")
+                                || symptomResource.contains("대장염") || symptomResource.contains("식도염")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "염증";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("위염") || symptomResource.contains("장염")
+                                || symptomResource.contains("대장염") || symptomResource.contains("식도염")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("위염") || symptomResource.contains("장염")
+                                || symptomResource.contains("대장염") || symptomResource.contains("식도염")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                prev = "염증";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "염증";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[ADHD]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(symptomResource.contains("adhd") || symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                            prev = "ADHD";
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("adhd") || symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(symptomResource.contains("adhd") || symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                prev = "ADHD";
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                                prev = "ADHD";
+                            }
+                        }
+                    }
+
+                    if (symptomSwitch[OTHERS]) {
+                        if (prev == null) {
+                            while (i < PILL_COUNT) {
+                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                if(!symptomResource.contains("기침") && !symptomResource.contains("콧물")
+                                        && !symptomResource.contains("코막힘") && !symptomResource.contains("코감기")
+                                        && !symptomResource.contains("소화불량") && !symptomResource.contains("설사")
+                                        && !symptomResource.contains("발열") &&!symptomResource.contains("두통")
+                                        && !symptomResource.contains("치통") && !symptomResource.contains("신경통")
+                                        && !symptomResource.contains("관절통") && !symptomResource.contains("근육통")
+                                        && !symptomResource.contains("요통") && !symptomResource.contains("염좌통")
+                                        && !symptomResource.contains("위염") && !symptomResource.contains("장염")
+                                        && !symptomResource.contains("대장염") && !symptomResource.contains("식도염")
+                                        && !symptomResource.contains("adhd") && !symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+                        }
+                        else {
+                            i = 0;
+                            position = 0;
+                            itemCount = 0;
+
+                            if (indexOfPill[i] >= 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(!symptomResource.contains("기침") && !symptomResource.contains("콧물")
+                                        && !symptomResource.contains("코막힘") && !symptomResource.contains("코감기")
+                                        && !symptomResource.contains("소화불량") && !symptomResource.contains("설사")
+                                        && !symptomResource.contains("발열") &&!symptomResource.contains("두통")
+                                        && !symptomResource.contains("치통") && !symptomResource.contains("신경통")
+                                        && !symptomResource.contains("관절통") && !symptomResource.contains("근육통")
+                                        && !symptomResource.contains("요통") && !symptomResource.contains("염좌통")
+                                        && !symptomResource.contains("위염") && !symptomResource.contains("장염")
+                                        && !symptomResource.contains("대장염") && !symptomResource.contains("식도염")
+                                        && !symptomResource.contains("adhd") && !symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = indexOfPill[i];
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            while (indexOfPill[i] > 0) {
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
+                                if(!symptomResource.contains("기침") && !symptomResource.contains("콧물")
+                                        && !symptomResource.contains("코막힘") && !symptomResource.contains("코감기")
+                                        && !symptomResource.contains("소화불량") && !symptomResource.contains("설사")
+                                        && !symptomResource.contains("발열") &&!symptomResource.contains("두통")
+                                        && !symptomResource.contains("치통") && !symptomResource.contains("신경통")
+                                        && !symptomResource.contains("관절통") && !symptomResource.contains("근육통")
+                                        && !symptomResource.contains("요통") && !symptomResource.contains("염좌통")
+                                        && !symptomResource.contains("위염") && !symptomResource.contains("장염")
+                                        && !symptomResource.contains("대장염") && !symptomResource.contains("식도염")
+                                        && !symptomResource.contains("adhd") && !symptomResource.contains("집중력")) {
+                                    indexOfPill[position] = i;
+                                    position++;
+                                    itemCount++;
+                                }
+                                i++;
+                            }
+
+                            if (itemCount == 0) {
+                                itemRooms.clear();
+
+                                CustomList adapter = new CustomList(SearchPillActivity.this);
+                                pillList = (ListView)findViewById(R.id.pillList);
+                                pillList.setAdapter(adapter);
+
+                                return;
+                            }
+                            else {
+                                itemRooms.clear();
+                                for(int k = 0; k < itemCount; k++) {
+                                    itemRooms.add("temp");
+                                }
+                            }
+                        }
+                    }
+
+                    CustomList newAdapterBySymptom = new CustomList(SearchPillActivity.this) {
+                        @Override
+                        public View getView(int position, View view, ViewGroup parent) {
+                            LayoutInflater inflater = context.getLayoutInflater();
+                            View rowView = inflater.inflate(R.layout.pill_list_item, null);
+
+                            ImageView pillImage = (ImageView) rowView.findViewById(R.id.pillImage);
+                            TextView pillName = (TextView) rowView.findViewById(R.id.pillName);
+                            TextView pillSymptom = (TextView) rowView.findViewById(R.id.pillSymptom);
+
+                            if(position <= indexOfPill[position]) {
+                                rowView.setVisibility(View.VISIBLE);
+
+                                pillImage.setImageResource(exampleItems[indexOfPill[position]].getPillImageResource());
+                                pillName.setText(exampleItems[indexOfPill[position]].getPillNameResource());
+                                pillSymptom.setText(exampleItems[indexOfPill[position]].getPillSymptomResource());
+
+                                return rowView;
+                            }
+                            else {
+                                Log.d("onClick", "position: " + position);
+                                rowView.setVisibility(View.GONE);
+
+                                return rowView;
+                            }
+                        }
+                    };
+                    pillList.setAdapter(newAdapterBySymptom);
+                }
             }
         });
     }
@@ -327,8 +922,9 @@ public class SearchPillActivity extends AppCompatActivity {
     // 리스트뷰에 활용할 어댑터 정의
     public class CustomList extends ArrayAdapter<String> {
         public final Activity context;
+
         public CustomList(Activity context) {
-            super(context, R.layout.pill_list_item, pillNames);
+            super(context, R.layout.pill_list_item, itemRooms);
             this.context = context;
         }
 
@@ -339,13 +935,11 @@ public class SearchPillActivity extends AppCompatActivity {
 
             ImageView pillImage = (ImageView) rowView.findViewById(R.id.pillImage);
             TextView pillName = (TextView) rowView.findViewById(R.id.pillName);
-            TextView pillManufacturer = (TextView) rowView.findViewById(R.id.pillManufacturer);
             TextView pillSymptom = (TextView) rowView.findViewById(R.id.pillSymptom);
 
-            pillImage.setImageResource(pillImages[position]);
-            pillName.setText(pillNames[position]);
-            pillManufacturer.setText("제조사: " + pillManufacturers[position]);
-            pillSymptom.setText(pillSymptoms[position]);
+            pillImage.setImageResource(exampleItems[position].getPillImageResource());
+            pillName.setText(exampleItems[position].getPillNameResource());
+            pillSymptom.setText(exampleItems[position].getPillSymptomResource());
 
             return rowView;
         }
