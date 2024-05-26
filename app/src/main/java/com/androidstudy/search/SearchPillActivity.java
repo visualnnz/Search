@@ -291,7 +291,7 @@ public class SearchPillActivity extends AppCompatActivity {
                     pillList = (ListView)findViewById(R.id.pillList);
                     pillList.setAdapter(adapter);
                 }
-                else if (symptomOnCount == 1) { // symptomOnCount가 2이상에서 1로 되는 경우 오류있음
+                else if (symptomOnCount == 1) {
                     int i = 0, position = 0;
                     String symptomResource;
 
@@ -666,7 +666,7 @@ public class SearchPillActivity extends AppCompatActivity {
                             }
 
                             while (indexOfPill[i] > 0) {
-                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
                                 if(symptomResource.contains("두통") || symptomResource.contains("치통")
                                         || symptomResource.contains("신경통") || symptomResource.contains("관절통")
                                         || symptomResource.contains("근육통") || symptomResource.contains("요통")
@@ -735,7 +735,7 @@ public class SearchPillActivity extends AppCompatActivity {
                             }
 
                             while (indexOfPill[i] > 0) {
-                                symptomResource = exampleItems[i].getPillSymptomResource();
+                                symptomResource = exampleItems[indexOfPill[i]].getPillSymptomResource();
                                 if(symptomResource.contains("위염") || symptomResource.contains("장염")
                                 || symptomResource.contains("대장염") || symptomResource.contains("식도염")) {
                                     indexOfPill[position] = i;
