@@ -100,6 +100,7 @@ public class SearchPillActivity extends AppCompatActivity {
 
         searchBar = (TextView) findViewById(R.id.searchBar);
         searchButton = (Button) findViewById(R.id.searchButton);
+        pillList = (ListView)findViewById(R.id.pillList);
 
         // 검색 버튼 클릭 리스너 설정
         setupSearchButtonClickListener(searchButton);
@@ -139,7 +140,6 @@ public class SearchPillActivity extends AppCompatActivity {
         }
 
         CustomList adapter = new CustomList(SearchPillActivity.this);
-        pillList = (ListView)findViewById(R.id.pillList);
         pillList.setAdapter(adapter);
 
     }
@@ -149,7 +149,7 @@ public class SearchPillActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             // 변수 선언
             boolean searchSuccess = false;
-            int searchItemCount = 30; // 검색되는 약의 최대 개수를 임시로 30으로 설정
+            int searchItemCount = 100; // 검색되는 약의 최대 개수를 임시로 100으로 설정
             int[] indexOfPill = new int[searchItemCount];
             @Override
             public void onClick(View v) {
@@ -419,10 +419,11 @@ public class SearchPillActivity extends AppCompatActivity {
                     };
                     pillList.setAdapter(newAdapterBySymptom);
                 }
-                else { // 필터가 2개이상 ON일 경우(문제 발생: 앱이 강제종료됨)
+                else { // 필터가 2개이상 ON일 경우
                     int i = 0, position = 0;
                     String prev = null;
                     String symptomResource;
+
                     if (symptomSwitch[COLD]) {
                         while (i < PILL_COUNT) {
                             symptomResource = exampleItems[i].getPillSymptomResource();
@@ -490,6 +491,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
                                 }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
+                                }
                                 prev = "소화";
                             }
                         }
@@ -547,6 +554,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 itemRooms.clear();
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
+                                }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
                                 }
                                 prev = "설사";
                             }
@@ -606,6 +619,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 itemRooms.clear();
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
+                                }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
                                 }
                                 prev = "열";
                             }
@@ -674,6 +693,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
                                 }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
+                                }
                                 prev = "통증";
                             }
                         }
@@ -735,6 +760,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
                                 }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
+                                }
                                 prev = "염증";
                             }
                         }
@@ -792,6 +823,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 itemRooms.clear();
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
+                                }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
                                 }
                                 prev = "ADHD";
                             }
@@ -875,6 +912,12 @@ public class SearchPillActivity extends AppCompatActivity {
                                 itemRooms.clear();
                                 for(int k = 0; k < itemCount; k++) {
                                     itemRooms.add("temp");
+                                }
+
+                                if (indexOfPill[itemCount] > 0) {
+                                    for (int j = itemCount; j < PILL_COUNT; j++) {
+                                        indexOfPill[j] = 0;
+                                    }
                                 }
                             }
                         }
